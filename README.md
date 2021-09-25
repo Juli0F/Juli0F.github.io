@@ -1,5 +1,8 @@
 ### Hi there 👋
 
+[Systems Thinking](https://youtu.be/EbLh7rZ3rhU)
+
+
 <!--
 **Juli0F/Juli0F** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
