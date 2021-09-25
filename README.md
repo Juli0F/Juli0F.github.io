@@ -1,10 +1,12 @@
 ### Hi there 👋
 
 Videos Interesantes
-[Systems Thinking](https://youtu.be/EbLh7rZ3rhU)
-[Pablos Holman] (https://www.youtube.com/watch?v=hqKafI7Amd8)
 
-Fuck the s
+[Systems Thinking](https://youtu.be/EbLh7rZ3rhU)
+
+[Pablos Holman](https://www.youtube.com/watch?v=hqKafI7Amd8)
+
+
 
 <!--
 **Juli0F/Juli0F** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
