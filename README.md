@@ -1,24 +1,31 @@
-### Hi there 👋
+# COMPILADORES_DICIEMBRE_2021
+### Quetzal
 
-Videos Interesantes
+Proyecto referente al curso de lenguajes y compiladores 2 de Usac
+el lenguaje es una mezcla de C y java y otras caracteristicas, cuenta
+con un tipado fuerte, datos inmutables y otras caracteristicas
 
-[Systems Thinking](https://youtu.be/EbLh7rZ3rhU)
+## Tipos Nativos
 
-[Pablos Holman](https://www.youtube.com/watch?v=hqKafI7Amd8)
+- string
+- int
+- double
+- boolean
+- char
+- null
+- struct
+- arreglos
 
+## Funciones Nativas
 
+- $$Matematicas
 
-<!--
-**Juli0F/Juli0F** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+- **Artimeticas** ``` suma, resta, multiplicacion y division ```
+- **pow** ``` pow(base,exponente); ```
+- **sen** ``` sen(exp); ``` donde exp pueden ser array's y devolvera el sen de cada termino
+- **cos** ``` sen(exp); ``` donde exp pueden ser array's y devolvera el sen de cada termino
 
-Here are some ideas to get you started:
+- **tan** ```tan(exp)``` devuelve la tangete de la expresion
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+- cadena^exp: devuelve una cadena con la cantidad de veces que indica exp. ```exp es una expresion numerica```
+
