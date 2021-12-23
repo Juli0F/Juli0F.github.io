@@ -133,6 +133,8 @@ class Traducir {
             print_nativa +
             "\n";
         console.log(code_objeto + "\n" + principal_1.Principal.historial);
+        let codeshare = code_objeto + "\n" + principal_1.Principal.historial + "";
+        return codeshare;
     }
     // /**************************************************Traduccion****************************************************** */
     static addComentario(comentario) {
@@ -142,13 +144,13 @@ class Traducir {
 exports.Traducir = Traducir;
 Traducir.funciones = "";
 //let principa: Principal = new Principal();
-const fs = require("fs"), NOMBRE_ARCHIVO = "file.java";
-fs.readFile(NOMBRE_ARCHIVO, "utf8", (error, datos) => {
-    if (error)
-        throw error;
-    let traducir = new Traducir();
-    // console.log(datos)
-    traducir.traducir(datos);
-    //principa.ejecutar(datos);
-    //console.log("El contenido es: ", datos);
-});
+// const fs = require("fs"),
+//   NOMBRE_ARCHIVO = "file.java";
+// fs.readFile(NOMBRE_ARCHIVO, "utf8", (error, datos) => {
+//   if (error) throw error;
+//   let traducir: Traducir = new Traducir();
+//   // console.log(datos)
+//   traducir.traducir(datos);
+//   //principa.ejecutar(datos);
+//   //console.log("El contenido es: ", datos);
+// });

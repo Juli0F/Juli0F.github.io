@@ -21,13 +21,18 @@ const Parser = require("./analizador/analizador");
 const nativas_1 = require("./nativas");
 const list_declaracion_1 = require("./instruccion/list_declaracion");
 const nodo_1 = require("./abs/nodo");
+const TSreporte_1 = require("./instruccion/TSreporte");
+const TSelemento_1 = require("./instruccion/TSelemento");
 class Principal {
     ejecutar(code) {
         const instrucciones = Parser.parse(code);
-        // const reporteE=instrucciones[1];
-        // reporteE.reporteGramatical.reverse().forEach((x)=>{
-        //   console.log(x);
-        // })
+        const reporteE = instrucciones[1];
+        const reporteGramatical = new TSreporte_1.TSreporte();
+        reporteE.reporteGramatical.reverse().forEach((x) => {
+            let elemento = new TSelemento_1.TSelemento(x["produccion"], x["regla"], "", Number(""), Number(""));
+            reporteGramatical.listaElementos.push(elemento);
+        });
+        this.reporteGramatica = reporteGramatical;
         // reporteE.forEach((x)=>{
         // });
         //console.log(reporteE);
@@ -148,11 +153,11 @@ class Principal {
         Principal.historial += "/* " + comentario + " */\n";
     }
     graficarTS() {
-        let codigoHTMLError = "";
+        let codigoHTMLErrorr = " ";
         //RECORRE LA CANTIDAD DE TABLAS ALMACENADAS EN EL ARBOL
         this.arbolG.graficarts.forEach((graph) => {
             // console.log("----------INICIO TABLA----------- ");
-            codigoHTMLError += "<table id=\"example\" class=\"table table-striped table-bordered\" cellspacing=\"0\" width=\"100%\">\n"
+            codigoHTMLErrorr += "<table id=\"example\" class=\"table table-striped table-bordered\" cellspacing=\"0\" width=\"100%\">\n"
                 + "<thead>\n"
                 + "<tr>\n"
                 + "<th>ID</th>\n"
@@ -165,18 +170,20 @@ class Principal {
                 + "<tbody>\n";
             graph.listaElementos.forEach((x) => {
                 //console.log("ID "+x.id+" TIPO "+x.tipo+" VALOR "+x.valor+" FILA "+x.fila +" COLUMNA "+x.columna);
-                codigoHTMLError += "<tr>\n";
-                codigoHTMLError += "<td>" + x.id + "</td>\n";
-                codigoHTMLError += "<td>" + x.tipo + "</td>\n";
-                codigoHTMLError += "<td>" + x.valor + "</td>\n";
-                codigoHTMLError += "<td>" + x.fila + "</td>\n";
-                codigoHTMLError += "<td>" + x.columna + "</td>\n";
-                codigoHTMLError += "</tr>\n";
+                codigoHTMLErrorr += "<tr>\n";
+                codigoHTMLErrorr += "<td>" + x.id + "</td>\n";
+                codigoHTMLErrorr += "<td>" + x.tipo + "</td>\n";
+                codigoHTMLErrorr += "<td>" + x.valor + "</td>\n";
+                codigoHTMLErrorr += "<td>" + x.fila + "</td>\n";
+                codigoHTMLErrorr += "<td>" + x.columna + "</td>\n";
+                codigoHTMLErrorr += "</tr>\n";
             });
-            codigoHTMLError += "</tbody>\n" + "</table>\n";
-            // console.log("----------FIN TABLA----------- ");
+            codigoHTMLErrorr += "</tbody>\n" + "</table>\n";
         });
-        return codigoHTMLError;
+        console.log("----------INICIO TABLA----------- ");
+        console.log(codigoHTMLErrorr);
+        console.log("----------FIN TABLA----------- ");
+        return codigoHTMLErrorr;
     }
     graficarAST() {
         console.log("-----------GENERANDO AST-----------");
@@ -212,6 +219,26 @@ class Principal {
         });
         codigoHTMLError += "</tbody>\n"
             + "</table>\n";
+        return codigoHTMLError;
+    }
+    getReporteGramatical() {
+        let codigoHTMLError = "";
+        codigoHTMLError += "<table id=\"example\" class=\"table table-striped table-bordered\" cellspacing=\"0\" width=\"100%\">\n"
+            + "<thead>\n"
+            + "<tr>\n"
+            + "<th>PRODUCCION</th>\n"
+            + "<th>VALOR</th>\n"
+            + "</tr>\n"
+            + "</thead>\n"
+            + "<tbody>\n";
+        this.reporteGramatica.listaElementos.forEach((x) => {
+            codigoHTMLError += "<tr>\n";
+            codigoHTMLError += "<td>" + x.id + "</td>\n";
+            codigoHTMLError += "<td>" + x.tipo + "</td>\n";
+            codigoHTMLError += "</tr>\n";
+        });
+        codigoHTMLError += "</tbody>\n" + "</table>\n";
+        // console.log("----------FIN TABLA----------- ");
         return codigoHTMLError;
     }
     getConsola() {

@@ -1137,6 +1137,9 @@ _handle_error:
     function getReporteError(){
       return reporte_error;
     }
+    function setReporte(){
+      reporte_error=[];
+    }
     function getReporteGramatical(){
       return reporteGramatical;
     }
@@ -7693,9 +7696,13 @@ class RepeticionCadena extends Instruccion_1.Instruccion {
     getNodo() {
         const nodo = new nodo_1.NodoAST("REPEAT");
         if ((this.inicio != null) || (this.inicio != undefined)) {
-            nodo.agregarHijoNodo(this.expresion.getNodo());
-            nodo.agregarHijo("^");
-            nodo.agregarHijoNodo(this.inicio.getNodo());
+            try {
+                nodo.agregarHijoNodo(this.expresion.getNodo());
+                nodo.agregarHijo("^");
+                nodo.agregarHijoNodo(this.inicio.getNodo());
+            }
+            catch (e) {
+            }
             return nodo;
         }
         else {
@@ -9730,7 +9737,11 @@ class Struct extends Instruccion_1.Instruccion {
         if (this.lista_atributos != null || this.lista_atributos != undefined) {
             const lista_atributos = new nodo_1.NodoAST("LISTA ATRIBUTOS");
             this.lista_atributos.forEach((element) => {
-                lista_atributos.agregarHijoNodo(element.getNodo());
+                try {
+                    lista_atributos.agregarHijoNodo(element.getNodo());
+                }
+                catch (e) {
+                }
             });
             nodo.agregarHijoNodo(lista_atributos);
         }
@@ -9817,13 +9828,16 @@ class Ternario extends Instruccion_1.Instruccion {
 exports.Ternario = Ternario;
 
 },{"../../abs/Instruccion":1,"../../abs/nodo":2,"../../principal":112}],64:[function(require,module,exports){
+const Traducir = require("./traduccion.js");
 const Principal = require("./principal.js");
+
 let consola = "";
 const principall = "";
 let dotGlobal = "";
 if (typeof window !== 'undefined') {
     window.parseExternal = function(code) {
         const prin = new Principal.Principal();
+
         //ANALIZA EL CODIGO RECIBIDO
         prin.ejecutar(code);
         //ESTABLACE EL VALOR DE LA CONSOLA A consola
@@ -9833,17 +9847,19 @@ if (typeof window !== 'undefined') {
         let tablaSimboloss = prin.graficarTS();
         //grafica el AST DEL codigo ingresado
         let dotAst = prin.graficarAST();
-        //console.log(codeTableError);
-        document.getElementById("tablaerror").innerHTML = "";
+        //obtiene el reporte de la gramatica
+        let grammarReport = prin.getReporteGramatical();
+        console.log(codeTableError);
+        document.getElementById("tablaerror").innerHTML = " ";
         $('#tablaerror').append(codeTableError);
 
-        document.getElementById("tablasimbolos").innerHTML = "";
+        document.getElementById("tablasimbolos").innerHTML = " ";
         $('#tablasimbolos').append(tablaSimboloss);
 
+        document.getElementById("gramatica").innerHTML = " ";
+        $('#gramatica').append(grammarReport);
 
-
-
-        document.getElementById("ast").innerHTML = "";
+        document.getElementById("ast").innerHTML = " ";
         dotGlobal = dotAst;
         //$('#ast').append(codigoAST);
 
@@ -9873,7 +9889,17 @@ if (typeof window !== 'undefined') {
 
     }
 }
-},{"./principal.js":112}],65:[function(require,module,exports){
+
+if (typeof window !== 'undefined') {
+    window.parseTraducir = function(code) {
+        const traslate = new Traducir.Traducir();
+        //ANALIZA EL CODIGO RECIBIDO
+
+        consola = traslate.traducir(code);
+
+    }
+}
+},{"./principal.js":112,"./traduccion.js":119}],65:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Return = void 0;
@@ -12179,6 +12205,7 @@ class Print extends Instruccion_1.Instruccion {
             else if (tipo_1.TIPO.CADENA == x.tipo) {
                 Print.print = true;
                 cadena += this.transform_cadena(x.value, arbol);
+                cadena += "printString();";
             }
             else if (tipo_1.TIPO.ENTERO == x.tipo) {
                 cadena += 'printf("%d",' + tr + ");\n";
@@ -15510,13 +15537,18 @@ const Parser = require("./analizador/analizador");
 const nativas_1 = require("./nativas");
 const list_declaracion_1 = require("./instruccion/list_declaracion");
 const nodo_1 = require("./abs/nodo");
+const TSreporte_1 = require("./instruccion/TSreporte");
+const TSelemento_1 = require("./instruccion/TSelemento");
 class Principal {
     ejecutar(code) {
         const instrucciones = Parser.parse(code);
-        // const reporteE=instrucciones[1];
-        // reporteE.reporteGramatical.reverse().forEach((x)=>{
-        //   console.log(x);
-        // })
+        const reporteE = instrucciones[1];
+        const reporteGramatical = new TSreporte_1.TSreporte();
+        reporteE.reporteGramatical.reverse().forEach((x) => {
+            let elemento = new TSelemento_1.TSelemento(x["produccion"], x["regla"], "", Number(""), Number(""));
+            reporteGramatical.listaElementos.push(elemento);
+        });
+        this.reporteGramatica = reporteGramatical;
         // reporteE.forEach((x)=>{
         // });
         //console.log(reporteE);
@@ -15637,11 +15669,11 @@ class Principal {
         Principal.historial += "/* " + comentario + " */\n";
     }
     graficarTS() {
-        let codigoHTMLError = "";
+        let codigoHTMLErrorr = " ";
         //RECORRE LA CANTIDAD DE TABLAS ALMACENADAS EN EL ARBOL
         this.arbolG.graficarts.forEach((graph) => {
             // console.log("----------INICIO TABLA----------- ");
-            codigoHTMLError += "<table id=\"example\" class=\"table table-striped table-bordered\" cellspacing=\"0\" width=\"100%\">\n"
+            codigoHTMLErrorr += "<table id=\"example\" class=\"table table-striped table-bordered\" cellspacing=\"0\" width=\"100%\">\n"
                 + "<thead>\n"
                 + "<tr>\n"
                 + "<th>ID</th>\n"
@@ -15654,18 +15686,20 @@ class Principal {
                 + "<tbody>\n";
             graph.listaElementos.forEach((x) => {
                 //console.log("ID "+x.id+" TIPO "+x.tipo+" VALOR "+x.valor+" FILA "+x.fila +" COLUMNA "+x.columna);
-                codigoHTMLError += "<tr>\n";
-                codigoHTMLError += "<td>" + x.id + "</td>\n";
-                codigoHTMLError += "<td>" + x.tipo + "</td>\n";
-                codigoHTMLError += "<td>" + x.valor + "</td>\n";
-                codigoHTMLError += "<td>" + x.fila + "</td>\n";
-                codigoHTMLError += "<td>" + x.columna + "</td>\n";
-                codigoHTMLError += "</tr>\n";
+                codigoHTMLErrorr += "<tr>\n";
+                codigoHTMLErrorr += "<td>" + x.id + "</td>\n";
+                codigoHTMLErrorr += "<td>" + x.tipo + "</td>\n";
+                codigoHTMLErrorr += "<td>" + x.valor + "</td>\n";
+                codigoHTMLErrorr += "<td>" + x.fila + "</td>\n";
+                codigoHTMLErrorr += "<td>" + x.columna + "</td>\n";
+                codigoHTMLErrorr += "</tr>\n";
             });
-            codigoHTMLError += "</tbody>\n" + "</table>\n";
-            // console.log("----------FIN TABLA----------- ");
+            codigoHTMLErrorr += "</tbody>\n" + "</table>\n";
         });
-        return codigoHTMLError;
+        console.log("----------INICIO TABLA----------- ");
+        console.log(codigoHTMLErrorr);
+        console.log("----------FIN TABLA----------- ");
+        return codigoHTMLErrorr;
     }
     graficarAST() {
         console.log("-----------GENERANDO AST-----------");
@@ -15703,6 +15737,26 @@ class Principal {
             + "</table>\n";
         return codigoHTMLError;
     }
+    getReporteGramatical() {
+        let codigoHTMLError = "";
+        codigoHTMLError += "<table id=\"example\" class=\"table table-striped table-bordered\" cellspacing=\"0\" width=\"100%\">\n"
+            + "<thead>\n"
+            + "<tr>\n"
+            + "<th>PRODUCCION</th>\n"
+            + "<th>VALOR</th>\n"
+            + "</tr>\n"
+            + "</thead>\n"
+            + "<tbody>\n";
+        this.reporteGramatica.listaElementos.forEach((x) => {
+            codigoHTMLError += "<tr>\n";
+            codigoHTMLError += "<td>" + x.id + "</td>\n";
+            codigoHTMLError += "<td>" + x.tipo + "</td>\n";
+            codigoHTMLError += "</tr>\n";
+        });
+        codigoHTMLError += "</tbody>\n" + "</table>\n";
+        // console.log("----------FIN TABLA----------- ");
+        return codigoHTMLError;
+    }
     getConsola() {
         return this.arbolG.consola;
     }
@@ -15725,7 +15779,7 @@ Principal.historial = "";
 //   //console.log("El contenido es: ", datos);
 // });
 
-},{"./abs/nodo":2,"./analizador/analizador":3,"./expresiones/array/array_valor":7,"./expresiones/array/declarar_array":9,"./expresiones/nativas/nativas_string":42,"./expresiones/struct/asignacion_struct":57,"./expresiones/struct/instancia_struct":61,"./expresiones/struct/struct":62,"./instruccion/asignacion":68,"./instruccion/break":70,"./instruccion/declaracion_id":73,"./instruccion/declaracion_idexp":74,"./instruccion/funcion":79,"./instruccion/list_declaracion":82,"./instruccion/main":84,"./instruccion/print":85,"./nativas":88,"./table/arbol":114,"./table/excepcion":115,"./table/tablasimbolos":117}],113:[function(require,module,exports){
+},{"./abs/nodo":2,"./analizador/analizador":3,"./expresiones/array/array_valor":7,"./expresiones/array/declarar_array":9,"./expresiones/nativas/nativas_string":42,"./expresiones/struct/asignacion_struct":57,"./expresiones/struct/instancia_struct":61,"./expresiones/struct/struct":62,"./instruccion/TSelemento":66,"./instruccion/TSreporte":67,"./instruccion/asignacion":68,"./instruccion/break":70,"./instruccion/declaracion_id":73,"./instruccion/declaracion_idexp":74,"./instruccion/funcion":79,"./instruccion/list_declaracion":82,"./instruccion/main":84,"./instruccion/print":85,"./nativas":88,"./table/arbol":114,"./table/excepcion":115,"./table/tablasimbolos":117}],113:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Type = void 0;
@@ -16145,4 +16199,162 @@ var TIPO;
     TIPO[TIPO["VOID"] = 8] = "VOID";
 })(TIPO = exports.TIPO || (exports.TIPO = {}));
 
-},{}]},{},[64]);
+},{}],119:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Traducir = void 0;
+const arbol_1 = require("./table/arbol");
+const tablasimbolos_1 = require("./table/tablasimbolos");
+const funcion_1 = require("./instruccion/funcion");
+const struct_1 = require("./expresiones/struct/struct");
+const excepcion_1 = require("./table/excepcion");
+const declarar_array_1 = require("./expresiones/array/declarar_array");
+const declaracion_idexp_1 = require("./instruccion/declaracion_idexp");
+const asignacion_struct_1 = require("./expresiones/struct/asignacion_struct");
+const declaracion_id_1 = require("./instruccion/declaracion_id");
+const instancia_struct_1 = require("./expresiones/struct/instancia_struct");
+const asignacion_1 = require("./instruccion/asignacion");
+const array_valor_1 = require("./expresiones/array/array_valor");
+const break_1 = require("./instruccion/break");
+const main_1 = require("./instruccion/main");
+const print_1 = require("./instruccion/print");
+const nativas_string_1 = require("./expresiones/nativas/nativas_string");
+const Parser = require("./analizador/analizador");
+const nativas_1 = require("./nativas");
+const list_declaracion_1 = require("./instruccion/list_declaracion");
+const principal_1 = require("./principal");
+const repeticion_cadena_1 = require("./expresiones/nativas/repeticion_cadena");
+const pow_1 = require("./expresiones/nativas/pow");
+const acceso_1 = require("./expresiones/array/acceso");
+class Traducir {
+    traducir(code) {
+        const instrucciones = Parser.parse(code);
+        let ts_global = new tablasimbolos_1.TablaSimbolos(undefined);
+        //ast
+        const ast = new arbol_1.Arbol(ts_global, instrucciones[0]);
+        ast.excepciones.forEach((element) => {
+            console.log("excepciones", element);
+        });
+        //interpreto 1ra pasada
+        ast.instrucciones.forEach((element) => {
+            if (element instanceof funcion_1.Funcion) {
+                let posicion = principal_1.Principal.posicion;
+                posicion++;
+                element.posicion = posicion;
+                ast.funciones.push(element);
+                element.traducir(ts_global, ast);
+                principal_1.Principal.posicion = posicion;
+            }
+            if (element instanceof struct_1.Struct) {
+                if (ast.structs.has(element.id))
+                    return new excepcion_1.Excepcion("Semantico", "Struct duplicado " + element.id, element.fila + "", element.columna + "");
+                ast.structs.set(element.id, element);
+            }
+            //Declaracion y asignaciones) or isinstance(instruccion, Asignacion):
+            if (element instanceof asignacion_1.Asignacion ||
+                element instanceof asignacion_struct_1.Asignacion_Struct ||
+                element instanceof declarar_array_1.Arreglo ||
+                element instanceof declaracion_idexp_1.D_IdExp ||
+                element instanceof list_declaracion_1.List_Declaracion ||
+                element instanceof declaracion_id_1.D_Id ||
+                element instanceof list_declaracion_1.List_Declaracion ||
+                element instanceof instancia_struct_1.Dec_Struct ||
+                element instanceof array_valor_1.Arreglo_Valor ||
+                element instanceof declarar_array_1.Arreglo ||
+                element instanceof instancia_struct_1.Dec_Struct) {
+                //console.log("ejecutar");
+                let value = element.traducir(ts_global, ast);
+                if (value instanceof excepcion_1.Excepcion) {
+                    ast.excepciones.push(value);
+                    ast.updateConsolaError(value.toString());
+                }
+                if (value instanceof break_1.Break) {
+                    let e = new excepcion_1.Excepcion("Semantico", "Break fuera de ciclo", element.fila + "", element.columna + "");
+                    ast.excepciones.push(e);
+                    ast.updateConsolaError(e.toString());
+                }
+            }
+        });
+        //segunda pasada
+        //
+        let contador = 0;
+        ast.instrucciones.forEach((element) => {
+            if (element instanceof main_1.Main) {
+                contador += 1;
+                if (contador == 2) {
+                    let e = new excepcion_1.Excepcion("Semantico", "Error en cantidad de Main", element.fila + "", element.columna + "");
+                    ast.excepciones.push(e);
+                    ast.updateConsolaError(e.toString);
+                    return;
+                }
+                let segunda_pasada = element.traducir(ts_global, ast);
+                if (segunda_pasada instanceof excepcion_1.Excepcion) {
+                    ast.excepciones.push(segunda_pasada);
+                    ast.updateConsolaError(segunda_pasada.toString);
+                }
+                if (segunda_pasada instanceof break_1.Break) {
+                    let e = new excepcion_1.Excepcion("Semantico", "Break fuera de ciclo", element.fila + "", element.columna + "");
+                    ast.excepciones.push(e);
+                    ast.updateConsolaError(e.toString());
+                }
+            }
+        });
+        //3era pasada
+        ast.instrucciones.forEach((element) => {
+            //if(!(element instanceof Main || ) )
+            //console.log("Sentencias fuera de Main")
+        });
+        let code_objeto = "";
+        let nativa = new nativas_1.Nativas();
+        let print_nativa = print_1.Print.print ? nativa.print_function(ast) : "";
+        let string_upper = nativas_string_1.NativasString.UPPER ? nativa.toUpper() : "";
+        let string_len = nativas_string_1.NativasString.LEN ? nativa.getLength() : "";
+        let string_lower = nativas_string_1.NativasString.LOWER ? nativa.toLower() : "";
+        let string_char = nativas_string_1.NativasString.LOWER ? nativa.charAt() : "";
+        let potencia_str = repeticion_cadena_1.RepeticionCadena.REPETICION ? nativa.potencia_string() : "";
+        let potencia_int = pow_1.Pow.Pow ? nativa.potencia_int() + "\n" : "";
+        let acceso = acceso_1.Acceso.ACCCESO ? nativa.acceso_array() + "\n" : "";
+        code_objeto = ast.head +
+            "\n" +
+            ast.list_temporales() +
+            "\n" +
+            string_upper +
+            "\n" +
+            string_lower +
+            "\n" +
+            string_len +
+            "\n" +
+            string_char +
+            "\n" +
+            potencia_str +
+            "\n" +
+            potencia_int +
+            "\n" +
+            acceso +
+            "\n" +
+            print_nativa +
+            "\n";
+        console.log(code_objeto + "\n" + principal_1.Principal.historial);
+        let codeshare = code_objeto + "\n" + principal_1.Principal.historial + "";
+        return codeshare;
+    }
+    // /**************************************************Traduccion****************************************************** */
+    static addComentario(comentario) {
+        principal_1.Principal.historial += "/* " + comentario + " */\n";
+    }
+}
+exports.Traducir = Traducir;
+Traducir.funciones = "";
+//let principa: Principal = new Principal();
+// const fs = require("fs"),
+//   NOMBRE_ARCHIVO = "file.java";
+// fs.readFile(NOMBRE_ARCHIVO, "utf8", (error, datos) => {
+//   if (error) throw error;
+//   let traducir: Traducir = new Traducir();
+//   // console.log(datos)
+//   traducir.traducir(datos);
+//   //principa.ejecutar(datos);
+//   //console.log("El contenido es: ", datos);
+// });
+
+},{"./analizador/analizador":3,"./expresiones/array/acceso":6,"./expresiones/array/array_valor":7,"./expresiones/array/declarar_array":9,"./expresiones/nativas/nativas_string":42,"./expresiones/nativas/pow":43,"./expresiones/nativas/repeticion_cadena":44,"./expresiones/struct/asignacion_struct":57,"./expresiones/struct/instancia_struct":61,"./expresiones/struct/struct":62,"./instruccion/asignacion":68,"./instruccion/break":70,"./instruccion/declaracion_id":73,"./instruccion/declaracion_idexp":74,"./instruccion/funcion":79,"./instruccion/list_declaracion":82,"./instruccion/main":84,"./instruccion/print":85,"./nativas":88,"./principal":112,"./table/arbol":114,"./table/excepcion":115,"./table/tablasimbolos":117}]},{},[64]);

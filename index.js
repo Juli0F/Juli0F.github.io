@@ -1,10 +1,13 @@
+const Traducir = require("./traduccion.js");
 const Principal = require("./principal.js");
+
 let consola = "";
 const principall = "";
 let dotGlobal = "";
 if (typeof window !== 'undefined') {
     window.parseExternal = function(code) {
         const prin = new Principal.Principal();
+
         //ANALIZA EL CODIGO RECIBIDO
         prin.ejecutar(code);
         //ESTABLACE EL VALOR DE LA CONSOLA A consola
@@ -14,17 +17,19 @@ if (typeof window !== 'undefined') {
         let tablaSimboloss = prin.graficarTS();
         //grafica el AST DEL codigo ingresado
         let dotAst = prin.graficarAST();
-        //console.log(codeTableError);
-        document.getElementById("tablaerror").innerHTML = "";
+        //obtiene el reporte de la gramatica
+        let grammarReport = prin.getReporteGramatical();
+        console.log(codeTableError);
+        document.getElementById("tablaerror").innerHTML = " ";
         $('#tablaerror').append(codeTableError);
 
-        document.getElementById("tablasimbolos").innerHTML = "";
+        document.getElementById("tablasimbolos").innerHTML = " ";
         $('#tablasimbolos').append(tablaSimboloss);
 
+        document.getElementById("gramatica").innerHTML = " ";
+        $('#gramatica').append(grammarReport);
 
-
-
-        document.getElementById("ast").innerHTML = "";
+        document.getElementById("ast").innerHTML = " ";
         dotGlobal = dotAst;
         //$('#ast').append(codigoAST);
 
@@ -51,6 +56,16 @@ if (typeof window !== 'undefined') {
     window.getDotAST = function() {
 
         return dotGlobal;
+
+    }
+}
+
+if (typeof window !== 'undefined') {
+    window.parseTraducir = function(code) {
+        const traslate = new Traducir.Traducir();
+        //ANALIZA EL CODIGO RECIBIDO
+
+        consola = traslate.traducir(code);
 
     }
 }

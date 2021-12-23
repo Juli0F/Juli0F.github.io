@@ -8,6 +8,7 @@ let consolaa = CodeMirror.fromTextArea(code, {
 
 
 function insertarTextoConsola(text) {
+    consolaa.setValue("");
     consolaa.setValue(text);
 
 }
