@@ -152,7 +152,7 @@ export class Print extends Instruccion {
           
         }else if (TIPO.ENTERO == x.tipo) {
           
-          cadena += 'printf("%d",' + tr + ");\n";
+          cadena += 'printf("%f",' + tr + ");\n";
         }else if (TIPO.BOOLEAN == x.tipo) {
           
           cadena += 'printf("%f",' + tr + ");\n";
